@@ -67,6 +67,25 @@ func Test_commitTransactionImpl_Execute(t *testing.T) {
 			assert.NoError(t, err)
 		})
 
+		t.Run("accept transaction if balance is = 0", func(t *testing.T) {
+			accountRepository := new(mocks.Repository)
+			defer accountRepository.AssertExpectations(t)
+
+			amount := float64(100)
+			balance := amount
+			accountRepository.On("GetBalance", ctx).Return(&balance, nil)
+			accountRepository.On("CommitTransaction", ctx, mock.Anything).Return(nil)
+
+			commitTransactionImpl := NewCommitTransactionImpl(accountRepository)
+
+			err := commitTransactionImpl.Execute(ctx, CommitTransactionInput{
+				TransactionType: models.TransactionTypeDebit,
+				Amount:          amount,
+			})
+
+			assert.NoError(t, err)
+		})
+
 		t.Run("refuse negative amount on account", func(t *testing.T) {
 			accountRepository := new(mocks.Repository)
 			defer accountRepository.AssertExpectations(t)

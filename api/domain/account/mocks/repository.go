@@ -14,13 +14,13 @@ type Repository struct {
 	mock.Mock
 }
 
-// Add provides a mock function with given fields: ctx, _a1
-func (_m *Repository) Add(ctx context.Context, _a1 models.Transaction) error {
-	ret := _m.Called(ctx, _a1)
+// CommitTransaction provides a mock function with given fields: ctx, transaction
+func (_m *Repository) CommitTransaction(ctx context.Context, transaction models.Transaction) error {
+	ret := _m.Called(ctx, transaction)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, models.Transaction) error); ok {
-		r0 = rf(ctx, _a1)
+		r0 = rf(ctx, transaction)
 	} else {
 		r0 = ret.Error(0)
 	}

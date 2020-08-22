@@ -1,4 +1,4 @@
-package transaction
+package account
 
 import (
 	"context"
@@ -6,5 +6,5 @@ import (
 )
 
 type Repository interface {
-	Add(ctx context.Context, transaction models.Transaction) error
+	CommitTransaction(ctx context.Context, transaction models.Transaction) error
 }

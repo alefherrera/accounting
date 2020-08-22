@@ -20,7 +20,12 @@ func main() {
 
 	r.HandleFunc("/transactions", func(writer http.ResponseWriter, request *http.Request) {
 		var input usecases.CommitTransactionInput
-		_ = json.NewDecoder(request.Body).Decode(&input)
+		err := json.NewDecoder(request.Body).Decode(&input)
+		if err != nil {
+			writer.WriteHeader(http.StatusBadRequest)
+			writer.Write([]byte(err.Error()))
+			return
+		}
 		result, err := commitTransaction.Execute(request.Context(), input)
 		sendResponse(writer, result, err)
 	}).Methods(http.MethodPost)

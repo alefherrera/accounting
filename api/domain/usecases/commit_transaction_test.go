@@ -32,7 +32,7 @@ func Test_commitTransactionImpl_Execute(t *testing.T) {
 			})
 
 			assert.NoError(t, err)
-			assert.Equal(t, balance, *result)
+			assert.Equal(t, balance, result.Balance)
 		})
 
 		t.Run("error saving", func(t *testing.T) {
@@ -77,13 +77,13 @@ func Test_commitTransactionImpl_Execute(t *testing.T) {
 			commitTransactionImpl := NewCommitTransactionImpl(accountRepository)
 
 			transactionAmount := float64(100)
-			balance, err := commitTransactionImpl.Execute(ctx, CommitTransactionInput{
+			result, err := commitTransactionImpl.Execute(ctx, CommitTransactionInput{
 				TransactionType: models.TransactionTypeDebit,
 				Amount:          transactionAmount,
 			})
 
 			assert.NoError(t, err)
-			assert.Equal(t, float64(1), *balance)
+			assert.Equal(t, float64(1), result.Balance)
 
 		})
 
@@ -106,13 +106,13 @@ func Test_commitTransactionImpl_Execute(t *testing.T) {
 
 			commitTransactionImpl := NewCommitTransactionImpl(accountRepository)
 
-			balance, err := commitTransactionImpl.Execute(ctx, CommitTransactionInput{
+			result, err := commitTransactionImpl.Execute(ctx, CommitTransactionInput{
 				TransactionType: models.TransactionTypeDebit,
 				Amount:          amount,
 			})
 
 			assert.NoError(t, err)
-			assert.Equal(t, float64(0), *balance)
+			assert.Equal(t, float64(0), result.Balance)
 		})
 
 		t.Run("refuse negative amount on account", func(t *testing.T) {

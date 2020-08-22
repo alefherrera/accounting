@@ -9,8 +9,12 @@ import (
 )
 
 type CommitTransactionInput struct {
-	TransactionType models.TransactionType
-	Amount          float64
+	TransactionType models.TransactionType `json:"transaction_type"`
+	Amount          float64                `json:"amount"`
+}
+
+type CommitTransactionOutput struct {
+	Balance float64 `json:"balance"`
 }
 
 const (
@@ -21,7 +25,7 @@ const (
 )
 
 type CommitTransaction interface {
-	Execute(ctx context.Context, input CommitTransactionInput) (*float64, error)
+	Execute(ctx context.Context, input CommitTransactionInput) (*CommitTransactionOutput, error)
 }
 
 var _ CommitTransaction = (*commitTransactionImpl)(nil)
@@ -35,7 +39,7 @@ func NewCommitTransactionImpl(accountRepository account.Repository) *commitTrans
 	return &commitTransactionImpl{accountRepository: accountRepository}
 }
 
-func (c commitTransactionImpl) Execute(ctx context.Context, input CommitTransactionInput) (*float64, error) {
+func (c commitTransactionImpl) Execute(ctx context.Context, input CommitTransactionInput) (*CommitTransactionOutput, error) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 
@@ -65,5 +69,7 @@ func (c commitTransactionImpl) Execute(ctx context.Context, input CommitTransact
 
 	balance := account.GetBalance()
 
-	return &balance, nil
+	return &CommitTransactionOutput{
+		Balance: balance,
+	}, nil
 }

@@ -10,9 +10,9 @@ const (
 )
 
 type Transaction struct {
-	Id              string
-	TransactionType TransactionType
-	Amount          float64
+	Id              string          `json:"id"`
+	TransactionType TransactionType `json:"transaction_type"`
+	Amount          float64         `json:"amount"`
 }
 
 func NewTransaction(transactionType TransactionType, amount float64) *Transaction {

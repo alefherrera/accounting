@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import TransactionTypeSelect from "./TransactionTypeSelect";
+import TransactionList from "./TransactionList";
 import Api from "../api";
 
 function TransactionForm() {
@@ -34,19 +35,25 @@ function TransactionForm() {
         <h1>Balance</h1>
         <h2>$ {balance}</h2>
       </div>
-      <form onSubmit={handleSubmit}>
-        <TransactionTypeSelect value={type} onChange={handleSelectChange} />
-        <TextField
-          id="outlined-basic"
-          label="Amount"
-          variant="outlined"
-          value={amount}
-          onChange={handleTextChange}
-        />
-        <Button type="submit" variant="contained" color="primary">
-          Submit
-        </Button>
-      </form>
+      <div>
+        <form className="form" onSubmit={handleSubmit}>
+          <TransactionTypeSelect value={type} onChange={handleSelectChange} />
+          <TextField
+            id="outlined-basic"
+            label="Amount"
+            variant="outlined"
+            type="number"
+            value={amount}
+            onChange={handleTextChange}
+          />
+          <Button type="submit" variant="contained" color="primary">
+            Submit
+          </Button>
+        </form>
+      </div>
+      <div>
+        <TransactionList />
+      </div>
     </div>
   );
 }

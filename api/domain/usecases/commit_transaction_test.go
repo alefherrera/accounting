@@ -13,85 +13,90 @@ import (
 func Test_commitTransactionImpl_Execute(t *testing.T) {
 	ctx := context.TODO()
 
-	t.Run("Must accept credit transaction", func(t *testing.T) {
-		accountRepository := new(mocks.Repository)
-		defer accountRepository.AssertExpectations(t)
+	t.Run("Credit transaction", func(t *testing.T) {
+		t.Run("Must accept credit transaction", func(t *testing.T) {
+			accountRepository := new(mocks.Repository)
+			defer accountRepository.AssertExpectations(t)
 
-		accountRepository.On("CommitTransaction", ctx, mock.Anything).Return(nil)
+			accountRepository.On("CommitTransaction", ctx, mock.Anything).Return(nil)
 
-		commitTransactionImpl := NewCommitTransactionImpl(accountRepository)
+			commitTransactionImpl := NewCommitTransactionImpl(accountRepository)
 
-		err := commitTransactionImpl.Execute(ctx, CommitTransactionInput{
-			TransactionType: models.TransactionTypeCredit,
-			Amount:          100,
+			err := commitTransactionImpl.Execute(ctx, CommitTransactionInput{
+				TransactionType: models.TransactionTypeCredit,
+				Amount:          100,
+			})
+
+			assert.NoError(t, err)
 		})
 
-		assert.NoError(t, err)
+		t.Run("error saving", func(t *testing.T) {
+			accountRepository := new(mocks.Repository)
+			defer accountRepository.AssertExpectations(t)
+
+			accountRepository.On("CommitTransaction", ctx, mock.Anything).Return(errors.New("error saving account"))
+
+			commitTransactionImpl := NewCommitTransactionImpl(accountRepository)
+
+			err := commitTransactionImpl.Execute(ctx, CommitTransactionInput{
+				TransactionType: models.TransactionTypeCredit,
+				Amount:          100,
+			})
+
+			assert.EqualError(t, err, UnableToCommitTransaction)
+		})
 	})
 
-	t.Run("error saving returns error on commit", func(t *testing.T) {
-		accountRepository := new(mocks.Repository)
-		defer accountRepository.AssertExpectations(t)
+	t.Run("Debit Transaction", func(t *testing.T) {
 
-		accountRepository.On("CommitTransaction", ctx, mock.Anything).Return(errors.New("error saving account"))
+		t.Run("refuse negative amount on account", func(t *testing.T) {
+			accountRepository := new(mocks.Repository)
+			defer accountRepository.AssertExpectations(t)
 
-		commitTransactionImpl := NewCommitTransactionImpl(accountRepository)
+			balance := float64(0)
+			accountRepository.On("GetBalance", ctx).Return(&balance, nil)
 
-		err := commitTransactionImpl.Execute(ctx, CommitTransactionInput{
-			TransactionType: models.TransactionTypeCredit,
-			Amount:          100,
+			commitTransactionImpl := NewCommitTransactionImpl(accountRepository)
+
+			err := commitTransactionImpl.Execute(ctx, CommitTransactionInput{
+				TransactionType: models.TransactionTypeDebit,
+				Amount:          100,
+			})
+
+			assert.EqualError(t, err, TransactionRefused)
 		})
 
-		assert.EqualError(t, err, UnableToCommitTransaction)
-	})
+		t.Run("refuse transaction when unable get balance", func(t *testing.T) {
+			accountRepository := new(mocks.Repository)
+			defer accountRepository.AssertExpectations(t)
 
-	t.Run("refuse negative amount on account", func(t *testing.T) {
-		accountRepository := new(mocks.Repository)
-		defer accountRepository.AssertExpectations(t)
+			accountRepository.On("GetBalance", ctx).Return(nil, errors.New("error"))
 
-		balance := float64(0)
-		accountRepository.On("GetBalance", ctx).Return(&balance, nil)
+			commitTransactionImpl := NewCommitTransactionImpl(accountRepository)
 
-		commitTransactionImpl := NewCommitTransactionImpl(accountRepository)
+			err := commitTransactionImpl.Execute(ctx, CommitTransactionInput{
+				TransactionType: models.TransactionTypeDebit,
+				Amount:          100,
+			})
 
-		err := commitTransactionImpl.Execute(ctx, CommitTransactionInput{
-			TransactionType: models.TransactionTypeDebit,
-			Amount:          100,
+			assert.EqualError(t, err, UnableToGetBalance)
 		})
 
-		assert.EqualError(t, err, TransactionRefused)
-	})
+		t.Run("refuse transaction when balance not found", func(t *testing.T) {
+			accountRepository := new(mocks.Repository)
+			defer accountRepository.AssertExpectations(t)
 
-	t.Run("refuse transaction when unable get balance", func(t *testing.T) {
-		accountRepository := new(mocks.Repository)
-		defer accountRepository.AssertExpectations(t)
+			accountRepository.On("GetBalance", ctx).Return(nil, nil)
 
-		accountRepository.On("GetBalance", ctx).Return(nil, errors.New("error"))
+			commitTransactionImpl := NewCommitTransactionImpl(accountRepository)
 
-		commitTransactionImpl := NewCommitTransactionImpl(accountRepository)
+			err := commitTransactionImpl.Execute(ctx, CommitTransactionInput{
+				TransactionType: models.TransactionTypeDebit,
+				Amount:          100,
+			})
 
-		err := commitTransactionImpl.Execute(ctx, CommitTransactionInput{
-			TransactionType: models.TransactionTypeDebit,
-			Amount:          100,
+			assert.EqualError(t, err, BalanceNotFound)
 		})
-
-		assert.EqualError(t, err, UnableToGetBalance)
-	})
-
-	t.Run("refuse transaction when balance not found", func(t *testing.T) {
-		accountRepository := new(mocks.Repository)
-		defer accountRepository.AssertExpectations(t)
-
-		accountRepository.On("GetBalance", ctx).Return(nil, nil)
-
-		commitTransactionImpl := NewCommitTransactionImpl(accountRepository)
-
-		err := commitTransactionImpl.Execute(ctx, CommitTransactionInput{
-			TransactionType: models.TransactionTypeDebit,
-			Amount:          100,
-		})
-
-		assert.EqualError(t, err, BalanceNotFound)
 	})
 
 }

@@ -7,6 +7,8 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 )
 
 func main() {
@@ -48,13 +50,20 @@ func main() {
 	}).Methods(http.MethodGet)
 
 	http.Handle("/", r)
-	err := http.ListenAndServe(":8080", nil)
 
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+	go func() {
+		err := http.ListenAndServe(":8080", nil)
+
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	}()
 
 	log.Println("server listening on 8080")
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	<-c
 }
 
 func sendResponse(writer http.ResponseWriter, result interface{}, err error) {

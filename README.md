@@ -3,8 +3,13 @@
 ## To run
 
 ```
+make run
+```
+
+## To build
+
+```
 make build
-./service
 ```
 
 ## Curls

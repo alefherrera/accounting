@@ -38,33 +38,32 @@ func NewCommitTransactionImpl(accountRepository account.Repository) *commitTrans
 func (c commitTransactionImpl) Execute(ctx context.Context, input CommitTransactionInput) (*float64, error) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
+
+	account, err := c.accountRepository.Get(ctx)
+
+	if err != nil {
+		return nil, errors.New(UnableToGetBalance)
+	}
+
+	if account == nil {
+		return nil, errors.New(BalanceNotFound)
+	}
+
 	if input.TransactionType == models.TransactionTypeDebit {
-		balance, err := c.accountRepository.GetBalance(ctx)
-
-		if err != nil {
-			return nil, errors.New(UnableToGetBalance)
-		}
-
-		if balance == nil {
-			return nil, errors.New(BalanceNotFound)
-		}
-
-		if *balance-input.Amount < 0 {
+		if account.GetBalance()-input.Amount < 0 {
 			return nil, errors.New(TransactionRefused)
 		}
 	}
 
 	newTransaction := models.NewTransaction(input.TransactionType, input.Amount)
 
-	if err := c.accountRepository.CommitTransaction(ctx, *newTransaction); err != nil {
+	account.CommitTransaction(*newTransaction)
+
+	if err := c.accountRepository.Save(ctx, *account); err != nil {
 		return nil, errors.New(UnableToCommitTransaction)
 	}
 
-	balance, err := c.accountRepository.GetBalance(ctx)
+	balance := account.GetBalance()
 
-	if err != nil {
-		return nil, err
-	}
-
-	return balance, nil
+	return &balance, nil
 }

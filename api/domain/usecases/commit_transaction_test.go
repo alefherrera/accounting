@@ -18,9 +18,11 @@ func Test_commitTransactionImpl_Execute(t *testing.T) {
 			accountRepository := new(mocks.Repository)
 			defer accountRepository.AssertExpectations(t)
 
+			account := models.Account{}
+
 			balance := float64(100)
-			accountRepository.On("GetBalance", ctx).Return(&balance, nil)
-			accountRepository.On("CommitTransaction", ctx, mock.Anything).Return(nil)
+			accountRepository.On("Get", ctx).Return(&account, nil)
+			accountRepository.On("Save", ctx, mock.Anything).Return(nil)
 
 			commitTransactionImpl := NewCommitTransactionImpl(accountRepository)
 
@@ -37,7 +39,10 @@ func Test_commitTransactionImpl_Execute(t *testing.T) {
 			accountRepository := new(mocks.Repository)
 			defer accountRepository.AssertExpectations(t)
 
-			accountRepository.On("CommitTransaction", ctx, mock.Anything).Return(errors.New("error saving account"))
+			account := models.Account{}
+
+			accountRepository.On("Get", ctx).Return(&account, nil)
+			accountRepository.On("Save", ctx, mock.Anything).Return(errors.New("error saving account"))
 
 			commitTransactionImpl := NewCommitTransactionImpl(accountRepository)
 

@@ -14,30 +14,16 @@ type Repository struct {
 	mock.Mock
 }
 
-// CommitTransaction provides a mock function with given fields: ctx, transaction
-func (_m *Repository) CommitTransaction(ctx context.Context, transaction models.Transaction) error {
-	ret := _m.Called(ctx, transaction)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, models.Transaction) error); ok {
-		r0 = rf(ctx, transaction)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// GetBalance provides a mock function with given fields: ctx
-func (_m *Repository) GetBalance(ctx context.Context) (*float64, error) {
+// Get provides a mock function with given fields: ctx
+func (_m *Repository) Get(ctx context.Context) (*models.Account, error) {
 	ret := _m.Called(ctx)
 
-	var r0 *float64
-	if rf, ok := ret.Get(0).(func(context.Context) *float64); ok {
+	var r0 *models.Account
+	if rf, ok := ret.Get(0).(func(context.Context) *models.Account); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*float64)
+			r0 = ret.Get(0).(*models.Account)
 		}
 	}
 
@@ -49,4 +35,18 @@ func (_m *Repository) GetBalance(ctx context.Context) (*float64, error) {
 	}
 
 	return r0, r1
+}
+
+// Save provides a mock function with given fields: ctx, _a1
+func (_m *Repository) Save(ctx context.Context, _a1 models.Account) error {
+	ret := _m.Called(ctx, _a1)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, models.Account) error); ok {
+		r0 = rf(ctx, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }

@@ -20,7 +20,6 @@ type CommitTransactionOutput struct {
 
 const (
 	UnableToCommitTransaction = "unable to commit transaction"
-	UnableToGetBalance        = "unable to get balance"
 	BalanceNotFound           = "balance not found"
 	TransactionRefused        = "transaction refused"
 )
@@ -47,7 +46,7 @@ func (c commitTransactionImpl) Execute(ctx context.Context, input CommitTransact
 	account, err := c.accountRepository.Get(ctx)
 
 	if err != nil {
-		return nil, errors.New(UnableToGetBalance)
+		return nil, errors.New(UnableToCommitTransaction)
 	}
 
 	if account == nil {

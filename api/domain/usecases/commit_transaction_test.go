@@ -147,7 +147,7 @@ func Test_commitTransactionImpl_Execute(t *testing.T) {
 			})
 
 			assert.Nil(t, result)
-			assert.EqualError(t, err, UnableToGetBalance)
+			assert.EqualError(t, err, UnableToCommitTransaction)
 		})
 
 		t.Run("refuse transaction when balance not found", func(t *testing.T) {

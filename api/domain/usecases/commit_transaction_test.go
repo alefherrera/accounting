@@ -134,6 +134,24 @@ func Test_commitTransactionImpl_Execute(t *testing.T) {
 
 			assert.EqualError(t, err, BalanceNotFound)
 		})
+
+		t.Run("error saving", func(t *testing.T) {
+			accountRepository := new(mocks.Repository)
+			defer accountRepository.AssertExpectations(t)
+
+			balance := float64(0)
+			accountRepository.On("GetBalance", ctx).Return(&balance, nil)
+			accountRepository.On("CommitTransaction", ctx, mock.Anything).Return(errors.New("error saving account"))
+
+			commitTransactionImpl := NewCommitTransactionImpl(accountRepository)
+
+			err := commitTransactionImpl.Execute(ctx, CommitTransactionInput{
+				TransactionType: models.TransactionTypeDebit,
+				Amount:          0,
+			})
+
+			assert.EqualError(t, err, UnableToCommitTransaction)
+		})
 	})
 
 }

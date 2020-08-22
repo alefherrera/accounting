@@ -5,7 +5,17 @@ type Account struct {
 }
 
 func (a Account) GetBalance() float64 {
-	return 0
+	var result float64
+
+	for _, transaction := range a.Transactions {
+		if transaction.TransactionType == TransactionTypeDebit {
+			result -= transaction.Amount
+		} else {
+			result += transaction.Amount
+		}
+	}
+
+	return result
 }
 
 func (a *Account) CommitTransaction(transaction Transaction) {

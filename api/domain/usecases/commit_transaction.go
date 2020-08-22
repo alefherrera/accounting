@@ -20,7 +20,7 @@ const (
 )
 
 type CommitTransaction interface {
-	Execute(ctx context.Context, input CommitTransactionInput) error
+	Execute(ctx context.Context, input CommitTransactionInput) (*float64, error)
 }
 
 var _ CommitTransaction = (*commitTransactionImpl)(nil)
@@ -33,28 +33,34 @@ func NewCommitTransactionImpl(accountRepository account.Repository) *commitTrans
 	return &commitTransactionImpl{accountRepository: accountRepository}
 }
 
-func (c commitTransactionImpl) Execute(ctx context.Context, input CommitTransactionInput) error {
+func (c commitTransactionImpl) Execute(ctx context.Context, input CommitTransactionInput) (*float64, error) {
 	if input.TransactionType == models.TransactionTypeDebit {
 		balance, err := c.accountRepository.GetBalance(ctx)
 
 		if err != nil {
-			return errors.New(UnableToGetBalance)
+			return nil, errors.New(UnableToGetBalance)
 		}
 
 		if balance == nil {
-			return errors.New(BalanceNotFound)
+			return nil, errors.New(BalanceNotFound)
 		}
 
 		if *balance-input.Amount < 0 {
-			return errors.New(TransactionRefused)
+			return nil, errors.New(TransactionRefused)
 		}
 	}
 
 	newTransaction := models.NewTransaction(input.TransactionType, input.Amount)
 
 	if err := c.accountRepository.CommitTransaction(ctx, *newTransaction); err != nil {
-		return errors.New(UnableToCommitTransaction)
+		return nil, errors.New(UnableToCommitTransaction)
 	}
 
-	return nil
+	balance, err := c.accountRepository.GetBalance(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return balance, nil
 }

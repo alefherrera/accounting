@@ -15,6 +15,7 @@ func main() {
 	accountRepository := account.NewInmemoryRepository()
 	commitTransaction := usecases.NewCommitTransactionImpl(accountRepository)
 	getTransactions := usecases.NewGetTransactionsImpl(accountRepository)
+	getTransactionById := usecases.NewGetTransactionByIdImpl(accountRepository)
 
 	r.HandleFunc("/transactions", func(writer http.ResponseWriter, request *http.Request) {
 
@@ -41,7 +42,9 @@ func main() {
 
 	r.HandleFunc("/transactions/{id}", func(writer http.ResponseWriter, request *http.Request) {
 
-		result, err := getTransactions.Execute(request.Context())
+		vars := mux.Vars(request)
+		id := vars["id"]
+		result, err := getTransactionById.Execute(request.Context(), id)
 
 		if err != nil {
 			writer.WriteHeader(http.StatusInternalServerError)

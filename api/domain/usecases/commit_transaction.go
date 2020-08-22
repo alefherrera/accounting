@@ -12,7 +12,10 @@ type CommitTransactionInput struct {
 	Amount          float64
 }
 
-const UnableToCommitTransaction = "unable to commit transaction"
+const (
+	UnableToCommitTransaction = "unable to commit transaction"
+	TransactionRefused        = "transaction refused"
+)
 
 type CommitTransaction interface {
 	Execute(ctx context.Context, input CommitTransactionInput) error
@@ -29,6 +32,13 @@ func NewCommitTransactionImpl(accountRepository account.Repository) *commitTrans
 }
 
 func (c commitTransactionImpl) Execute(ctx context.Context, input CommitTransactionInput) error {
+	if input.TransactionType == models.TransactionTypeDebit {
+		balance, _ := c.accountRepository.GetBalance(ctx)
+		if balance-input.Amount < 0 {
+			return errors.New(TransactionRefused)
+		}
+	}
+
 	newTransaction := models.NewTransaction(input.TransactionType, input.Amount)
 
 	if err := c.accountRepository.CommitTransaction(ctx, *newTransaction); err != nil {

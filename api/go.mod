@@ -1,4 +1,4 @@
-module api
+module github.com/alefherrera/accounting/api
 
 go 1.15
 

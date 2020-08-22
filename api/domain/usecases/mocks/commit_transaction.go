@@ -3,9 +3,9 @@
 package mocks
 
 import (
-	usecases "api/domain/usecases"
 	context "context"
 
+	usecases "github.com/alefherrera/accounting/api/domain/usecases"
 	mock "github.com/stretchr/testify/mock"
 )
 

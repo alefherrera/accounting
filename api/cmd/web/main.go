@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/alefherrera/accounting/api/domain/account"
 	"github.com/alefherrera/accounting/api/domain/usecases"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -49,7 +50,7 @@ func main() {
 		sendResponse(writer, result, err)
 	}).Methods(http.MethodGet)
 
-	http.Handle("/", r)
+	http.Handle("/", handlers.CORS()(r))
 
 	go func() {
 		err := http.ListenAndServe(":8080", nil)

@@ -2,14 +2,28 @@
 
 ## To run
 
+inside the api folder execute:
+
 ```
 make run
 ```
 
 ## To build
 
+inside the api folder execute:
+
 ```
 make build
+```
+
+# Web client
+
+## To run
+
+inside the client folder execute:
+
+```
+npm start
 ```
 
 ## Curls

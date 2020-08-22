@@ -29,14 +29,16 @@ func (_m *Repository) CommitTransaction(ctx context.Context, transaction models.
 }
 
 // GetBalance provides a mock function with given fields: ctx
-func (_m *Repository) GetBalance(ctx context.Context) (float64, error) {
+func (_m *Repository) GetBalance(ctx context.Context) (*float64, error) {
 	ret := _m.Called(ctx)
 
-	var r0 float64
-	if rf, ok := ret.Get(0).(func(context.Context) float64); ok {
+	var r0 *float64
+	if rf, ok := ret.Get(0).(func(context.Context) *float64); ok {
 		r0 = rf(ctx)
 	} else {
-		r0 = ret.Get(0).(float64)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*float64)
+		}
 	}
 
 	var r1 error

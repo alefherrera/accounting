@@ -14,6 +14,8 @@ type CommitTransactionInput struct {
 
 const (
 	UnableToCommitTransaction = "unable to commit transaction"
+	UnableToGetBalance        = "unable to get balance"
+	BalanceNotFound           = "balance not found"
 	TransactionRefused        = "transaction refused"
 )
 
@@ -33,8 +35,17 @@ func NewCommitTransactionImpl(accountRepository account.Repository) *commitTrans
 
 func (c commitTransactionImpl) Execute(ctx context.Context, input CommitTransactionInput) error {
 	if input.TransactionType == models.TransactionTypeDebit {
-		balance, _ := c.accountRepository.GetBalance(ctx)
-		if balance-input.Amount < 0 {
+		balance, err := c.accountRepository.GetBalance(ctx)
+
+		if err != nil {
+			return errors.New(UnableToGetBalance)
+		}
+
+		if balance == nil {
+			return errors.New(BalanceNotFound)
+		}
+
+		if *balance-input.Amount < 0 {
 			return errors.New(TransactionRefused)
 		}
 	}

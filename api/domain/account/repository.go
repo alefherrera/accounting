@@ -3,6 +3,7 @@ package account
 import (
 	"context"
 	"github.com/alefherrera/accounting/api/domain/models"
+	"sync"
 )
 
 type Repository interface {
@@ -11,6 +12,7 @@ type Repository interface {
 }
 
 type inmemoryRepository struct {
+	mux     sync.Mutex
 	account models.Account
 }
 
@@ -19,10 +21,12 @@ func NewInmemoryRepository() *inmemoryRepository {
 }
 
 func (i *inmemoryRepository) Save(ctx context.Context, account models.Account) error {
+	i.mux.Lock()
+	defer i.mux.Unlock()
 	i.account = account
 	return nil
 }
 
-func (i inmemoryRepository) Get(ctx context.Context) (*models.Account, error) {
+func (i *inmemoryRepository) Get(ctx context.Context) (*models.Account, error) {
 	return &i.account, nil
 }

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/alefherrera/accounting/api/domain/account"
 	"github.com/alefherrera/accounting/api/domain/models"
+	"sync"
 )
 
 type CommitTransactionInput struct {
@@ -26,6 +27,7 @@ type CommitTransaction interface {
 var _ CommitTransaction = (*commitTransactionImpl)(nil)
 
 type commitTransactionImpl struct {
+	mux               sync.Mutex
 	accountRepository account.Repository
 }
 
@@ -34,6 +36,8 @@ func NewCommitTransactionImpl(accountRepository account.Repository) *commitTrans
 }
 
 func (c commitTransactionImpl) Execute(ctx context.Context, input CommitTransactionInput) (*float64, error) {
+	c.mux.Lock()
+	defer c.mux.Unlock()
 	if input.TransactionType == models.TransactionTypeDebit {
 		balance, err := c.accountRepository.GetBalance(ctx)
 

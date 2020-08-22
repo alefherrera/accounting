@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"errors"
 	"github.com/alefherrera/accounting/api/domain/account/mocks"
 	"github.com/alefherrera/accounting/api/domain/models"
 	"github.com/stretchr/testify/assert"
@@ -26,6 +27,22 @@ func Test_commitTransactionImpl_Execute(t *testing.T) {
 		})
 
 		assert.NoError(t, err)
+	})
+
+	t.Run("error saving returns error on commit", func(t *testing.T) {
+		accountRepository := new(mocks.Repository)
+		defer accountRepository.AssertExpectations(t)
+
+		accountRepository.On("CommitTransaction", ctx, mock.Anything).Return(errors.New("error saving account"))
+
+		commitTransactionImpl := NewCommitTransactionImpl(accountRepository)
+
+		err := commitTransactionImpl.Execute(ctx, CommitTransactionInput{
+			TransactionType: models.TransactionTypeCredit,
+			Amount:          100,
+		})
+
+		assert.EqualError(t, err, UnableToCommitTransaction)
 	})
 
 }

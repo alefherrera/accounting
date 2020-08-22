@@ -14,6 +14,7 @@ type CommitTransactionInput struct {
 }
 
 type CommitTransactionOutput struct {
+	Id      string  `json:"id"`
 	Balance float64 `json:"balance"`
 }
 
@@ -70,6 +71,7 @@ func (c commitTransactionImpl) Execute(ctx context.Context, input CommitTransact
 	balance := account.GetBalance()
 
 	return &CommitTransactionOutput{
+		Id:      newTransaction.Id,
 		Balance: balance,
 	}, nil
 }

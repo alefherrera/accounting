@@ -21,3 +21,12 @@ func (a Account) GetBalance() float64 {
 func (a *Account) CommitTransaction(transaction Transaction) {
 	a.Transactions = append(a.Transactions, transaction)
 }
+
+func (a Account) GetTransactionById(id string) *Transaction {
+	for _, transaction := range a.Transactions {
+		if transaction.Id == id {
+			return &transaction
+		}
+	}
+	return nil
+}

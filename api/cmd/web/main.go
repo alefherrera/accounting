@@ -39,6 +39,26 @@ func main() {
 
 	}).Methods(http.MethodPost)
 
+	r.HandleFunc("/transactions/{id}", func(writer http.ResponseWriter, request *http.Request) {
+
+		result, err := getTransactions.Execute(request.Context())
+
+		if err != nil {
+			writer.WriteHeader(http.StatusInternalServerError)
+			writer.Write([]byte(err.Error()))
+			return
+		}
+
+		if result == nil {
+			writer.WriteHeader(http.StatusNotFound)
+			writer.Write([]byte("not found"))
+			return
+		}
+
+		json.NewEncoder(writer).Encode(result)
+
+	}).Methods(http.MethodGet)
+
 	r.HandleFunc("/transactions", func(writer http.ResponseWriter, request *http.Request) {
 
 		result, err := getTransactions.Execute(request.Context())

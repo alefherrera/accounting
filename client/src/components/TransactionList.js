@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import Api from "../api";
 
+function getClassName(type) {
+  return type === "debit" ? "debit" : "credit";
+}
+
 function TransactionItem({ transaction }) {
   return (
     <div>
-      <h2>
+      <h2 className={getClassName(transaction.transaction_type)}>
         Type: {transaction.transaction_type} - Amount: $ {transaction.amount}
       </h2>
     </div>

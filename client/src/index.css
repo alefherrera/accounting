@@ -20,3 +20,11 @@ code {
   height: 200px;
   margin: auto;
 }
+
+.debit {
+  color: red;
+}
+
+.credit {
+  color: green;
+}

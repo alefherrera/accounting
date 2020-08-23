@@ -12,7 +12,7 @@ type Repository interface {
 }
 
 type inmemoryRepository struct {
-	mux     sync.Mutex
+	mux     sync.RWMutex
 	account models.Account
 }
 
@@ -28,5 +28,7 @@ func (i *inmemoryRepository) Save(ctx context.Context, account models.Account) e
 }
 
 func (i *inmemoryRepository) Get(ctx context.Context) (*models.Account, error) {
+	i.mux.RLock()
+	defer i.mux.RUnlock()
 	return &i.account, nil
 }
